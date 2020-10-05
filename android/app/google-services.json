@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1014518372409",
+    "firebase_url": "https://len-den-bdf2a.firebaseio.com",
+    "project_id": "len-den-bdf2a",
+    "storage_bucket": "len-den-bdf2a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1014518372409:android:c2d730abec41b4335e55e8",
+        "android_client_info": {
+          "package_name": "com.architaggarwal.len_den"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1014518372409-ckm3pkchanddm25qsbb2k4c6kdjodoml.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.architaggarwal.len_den",
+            "certificate_hash": "4ba3fb62ec9b0360b270f0a9fb2c39dc8d4fb362"
+          }
+        },
+        {
+          "client_id": "1014518372409-smptptd48q7sg54fdjkl3h7p4q95ch3d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaQsn-NeM7-c22C-QTfGqj_mWhOILtiAQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1014518372409-smptptd48q7sg54fdjkl3h7p4q95ch3d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
