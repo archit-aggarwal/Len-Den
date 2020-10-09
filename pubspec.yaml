@@ -31,6 +31,7 @@ dependencies:
   cool_alert: ^1.0.1
   flutter_spinkit: ^4.1.2+1
   email_validator: ^1.0.6
+  shared_preferences: ^0.5.12
 
 dev_dependencies:
   flutter_test:

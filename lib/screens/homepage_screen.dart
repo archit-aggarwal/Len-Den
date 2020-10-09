@@ -6,13 +6,10 @@ import 'package:len_den/screens/individual_payments_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
 class HomePage extends StatefulWidget {
   static List<TransactionBook> transactionBooks = [];
-  HomePage({this.user});
-  final User user;
   static const String id = 'Home Page Screen';
 
   @override

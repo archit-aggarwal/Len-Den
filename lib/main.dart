@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:len_den/screens/homepage_screen.dart';
@@ -47,8 +48,11 @@ class _AppState extends State<App> {
     if (!_initialized) {
       return Loading();
     }
+
     return MaterialApp(
-      initialRoute: LoginScreen.id,
+      initialRoute: (FirebaseAuth.instance.currentUser != null)
+          ? HomePage.id
+          : LoginScreen.id,
       theme: ThemeData.dark(),
       routes: {
         HomePage.id: (context) => HomePage(),
@@ -66,11 +70,9 @@ class _AppState extends State<App> {
 //TODO: Add Welcome Screen (How to Use App at first time login)
 //TODO: Add Payment Reminder + Link generation
 //TODO: Add PDF Generation for Report
-//TODO: Add Animations for Loading & Navigation
-//TODO: Add Automatic Login after App reopens (Shared Preferences)
-//TODO: Add Recovery Password & Change Password
 //TODO: Add Authentication using Google Account & SMS (Phone)
 //TODO: Add Social Authentication using Facebook , Github & Twitter
-//TODO: Add Using Google People API for Google Contacts
+//TODO: Add Use of Google People API for Google Contacts
 //TODO: Add Support for Web & iOS
+//TODO: Add Animations for Loading & Navigation
 //TODO: Deploy on Play Store & Github

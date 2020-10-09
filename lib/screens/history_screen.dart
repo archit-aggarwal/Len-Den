@@ -93,9 +93,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ],
         ),
       ),
-      //TODO: Edit Password
-      //   title: 'Edit Password',
-      //   leading: Icon(FontAwesomeIcons.key),
       //TODO: Add Phone Number
       //   title: 'Phone Number',
       //   leading: Icon(FontAwesomeIcons.phone),
