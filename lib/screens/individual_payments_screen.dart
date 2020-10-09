@@ -117,7 +117,6 @@ class _IndividualScreenState extends State<IndividualScreen> {
                             builder: (context) {
                               return IndividualTransaction(
                                 transactionBook: transactionBook,
-                                index: index,
                               );
                             },
                           ),

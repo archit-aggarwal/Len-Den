@@ -4,8 +4,8 @@ import 'package:len_den/screens/homepage_screen.dart';
 import 'package:len_den/screens/individual_payments_screen.dart';
 import 'package:len_den/screens/individual_transaction_screen.dart';
 import 'package:len_den/screens/login_screen.dart';
-import 'file:///C:/Users/Lenovo/AndroidStudioProjects/len_den/lib/widgets/user_profile.dart';
 import 'package:len_den/widgets/loading.dart';
+import 'package:len_den/widgets/user_profile.dart';
 import 'package:len_den/widgets/something_went_wrong.dart';
 
 void main() => runApp(App());
@@ -47,7 +47,6 @@ class _AppState extends State<App> {
     if (!_initialized) {
       return Loading();
     }
-
     return MaterialApp(
       initialRoute: LoginScreen.id,
       theme: ThemeData.dark(),
@@ -68,9 +67,8 @@ class _AppState extends State<App> {
 //TODO: Add Payment Reminder + Link generation
 //TODO: Add PDF Generation for Report
 //TODO: Add Animations for Loading & Navigation
-//TODO: Add Automatic Login after App reopens
+//TODO: Add Automatic Login after App reopens (Shared Preferences)
 //TODO: Add Recovery Password & Change Password
-//TODO: Add Email Verification
 //TODO: Add Authentication using Google Account & SMS (Phone)
 //TODO: Add Social Authentication using Facebook , Github & Twitter
 //TODO: Add Using Google People API for Google Contacts

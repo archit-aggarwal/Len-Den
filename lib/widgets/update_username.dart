@@ -11,18 +11,17 @@ class EditUserName extends StatefulWidget {
 
 class _EditUserNameState extends State<EditUserName> {
   String userName;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 400.0,
+    return Expanded(
       child: Form(
+        key: _formKey,
         child: Column(
           children: <Widget>[
             Container(
-              padding: EdgeInsets.all(
-                20.0,
-              ),
+              padding: EdgeInsets.all(30.0),
               child: TextFormField(
                 decoration: InputDecoration(
                   labelText: "User Name",
@@ -41,9 +40,7 @@ class _EditUserNameState extends State<EditUserName> {
                     return null;
                 },
                 onChanged: (newText) {
-                  setState(() {
-                    userName = newText;
-                  });
+                  userName = newText;
                 },
                 keyboardType: TextInputType.text,
                 style: GoogleFonts.poppins(),
@@ -52,8 +49,13 @@ class _EditUserNameState extends State<EditUserName> {
             SizedBox(height: 10.0),
             RaisedButton(
               onPressed: () {
-                widget.callBack(userName);
+                if (_formKey.currentState.validate()) {
+                  widget.callBack(userName);
+                }
               },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18.0),
+              ),
               child: Text('Edit User Name'),
             ),
           ],

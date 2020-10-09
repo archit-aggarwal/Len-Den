@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
@@ -33,7 +32,6 @@ class TransactionBook {
   int netCredit = 0;
   int netDebit = 0;
   int netAmount = 0;
-  List<Transaction> transactions = [];
   Widget leadingIcon;
   bool isChecked;
 
@@ -41,14 +39,12 @@ class TransactionBook {
     netCredit += transaction.amountCredit;
     netDebit += transaction.amountDebit;
     netAmount = (netCredit - netDebit);
-    transactions.add(transaction);
   }
 
   void removetransaction(Transaction transaction) {
     netCredit -= transaction.amountCredit;
     netDebit -= transaction.amountDebit;
     netAmount = (netCredit - netDebit);
-    transactions.remove(transaction);
   }
 }
 

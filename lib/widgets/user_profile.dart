@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:len_den/widgets/change_username.dart';
+import 'package:len_den/widgets/update_password.dart';
+import 'package:len_den/widgets/update_username.dart';
 
 class UserProfile extends StatefulWidget {
   static const String id = 'User Profile Screen';
@@ -56,7 +57,7 @@ class _UserProfileState extends State<UserProfile> {
         body: new Stack(
       children: <Widget>[
         ClipPath(
-          child: Container(color: Colors.black.withOpacity(0.8)),
+          child: Container(color: Colors.black.withOpacity(0.6)),
           clipper: GetClipper(),
         ),
         Positioned(
@@ -64,124 +65,134 @@ class _UserProfileState extends State<UserProfile> {
             top: MediaQuery.of(context).size.height / 5,
             child: Column(
               children: <Widget>[
-                Container(
-                  width: 150.0,
-                  height: 150.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white12,
-                    image: DecorationImage(
-                      image: (currentUser.photoURL != null)
-                          ? FileImage(File(currentUser.photoURL))
-                          : AssetImage('images/AnonymousUser.png'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(75.0)),
-                    boxShadow: [
-                      BoxShadow(blurRadius: 7.0, color: Colors.black)
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20.0),
-                Container(
-                  height: 30.0,
-                  width: 250.0,
-                  child: Material(
-                    borderRadius: BorderRadius.circular(20.0),
-                    color: Colors.yellow,
-                    elevation: 7.0,
-                    child: GestureDetector(
-                      onTap: () {
-                        getPhoto();
-                      },
-                      child: Center(
-                        child: Text(
-                          'Upload/Edit Profile Image',
-                          style: TextStyle(
-                              color: Colors.black, fontFamily: 'Montserrat'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 25.0),
-                Container(
-                  padding: EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(5.0) //         <--- border radius here
-                        ),
-                    color: Colors.white12,
-                  ),
-                  child: Text(
-                    userName,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 25.0),
-                Container(
-                  height: 30.0,
-                  width: 250.0,
-                  child: Material(
-                    borderRadius: BorderRadius.circular(20.0),
-                    color: Colors.lightGreenAccent,
-                    elevation: 7.0,
-                    child: GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (context) => SingleChildScrollView(
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                  bottom:
-                                      MediaQuery.of(context).viewInsets.bottom),
-                              child: EditUserName(
-                                callBack: (newUserName) {
-                                  getUserName(newUserName);
-                                  setState(() {
-                                    userName = newUserName;
-                                  });
-                                  Navigator.pop(context);
-                                },
+                Padding(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: Stack(
+                    fit: StackFit.loose,
+                    children: <Widget>[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            width: 140.0,
+                            height: 140.0,
+                            decoration: new BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: new DecorationImage(
+                                image: (currentUser.photoURL != null)
+                                    ? FileImage(File(currentUser.photoURL))
+                                    : AssetImage('images/AnonymousUser.png'),
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
-                        );
-                      },
-                      child: Center(
-                        child: Text(
-                          'Edit User Name',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Montserrat',
-                          ),
-                        ),
+                        ],
                       ),
-                    ),
+                      Padding(
+                          padding: EdgeInsets.only(top: 90.0, right: 100.0),
+                          child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: () {
+                                  getPhoto();
+                                },
+                                child: new CircleAvatar(
+                                  backgroundColor: Color(0xff03DAC6),
+                                  radius: 22.0,
+                                  child: new Icon(
+                                    Icons.brush,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            ],
+                          )),
+                    ],
                   ),
                 ),
-                SizedBox(height: 25.0),
-                Container(
-                  padding: EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(5.0) //         <--- border radius here
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Card(
+                    child: ListTile(
+                      leading: Icon(Icons.mail),
+                      title: Text(
+                        currentUser.email,
+                        style: GoogleFonts.robotoCondensed(
+                            fontSize: 16.0,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.white70),
+                      ),
+                      // trailing: IconButton(
+                      //     icon: Icon(Icons.create), onPressed: () {}),
+                    ),
+                    elevation: 18.0,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  child: Card(
+                    child: ListTile(
+                      leading: Icon(Icons.account_circle),
+                      title: Text(
+                        userName,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 18.0,
+                          color: Colors.white70,
+                          fontStyle: FontStyle.italic,
                         ),
-                    color: Colors.white12,
+                      ),
+                      trailing: IconButton(
+                          icon: Icon(Icons.create),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (context) => SingleChildScrollView(
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom),
+                                  child: EditUserName(
+                                    callBack: (newUserName) {
+                                      getUserName(newUserName);
+                                      setState(() {
+                                        userName = newUserName;
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                    ),
+                    elevation: 18.0,
                   ),
-                  child: Text(
-                    currentUser.email,
-                    style: GoogleFonts.robotoCondensed(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white70),
+                ),
+                RaisedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => SingleChildScrollView(
+                        child: Container(
+                          padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom),
+                          child: UpdatePassword(),
+                        ),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.vpn_key),
+                  label: Text('Update Password'),
+                  color: Color(0xff03DAC6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
                   ),
+                  padding: EdgeInsets.symmetric(horizontal: 70, vertical: 12),
                 ),
               ],
             ))
