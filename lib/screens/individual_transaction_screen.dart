@@ -56,18 +56,39 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
             ));
   }
 
+  Future checkExist() async {
+    try {
+      await Cloud.FirebaseFirestore.instance
+          .doc("${widget.transactionBook.contact.displayName}/netAmount")
+          .get()
+          .then((doc) {
+        if (doc.exists == false)
+          Cloud.FirebaseFirestore.instance
+              .doc("${widget.transactionBook.contact.displayName}/netAmount")
+              .set({
+            "netAmount": 0,
+            "netCredit": 0,
+            "netDebit": 0,
+            "time": DateTime.utc(3000), // Oldest Date & Time
+          });
+      });
+    } catch (e) {
+      Cloud.FirebaseFirestore.instance
+          .doc("${widget.transactionBook.contact.displayName}/netAmount")
+          .set({
+        "netAmount": 0,
+        "netCredit": 0,
+        "netDebit": 0,
+        "time": DateTime.utc(3000), // Oldest Date & Time
+      });
+    }
+  }
+
   @override
   void initState() {
     transactions = Cloud.FirebaseFirestore.instance
         .collection(widget.transactionBook.contact.displayName);
-    Cloud.FirebaseFirestore.instance
-        .doc("${widget.transactionBook.contact.displayName}/netAmount")
-        .set({
-      "netAmount": 0,
-      "netCredit": 0,
-      "netDebit": 0,
-      "time": DateTime.utc(3000), // Oldest Date & Time
-    });
+    checkExist();
     super.initState();
   }
 
