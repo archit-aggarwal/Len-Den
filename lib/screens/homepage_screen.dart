@@ -78,12 +78,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: SnakeNavigationBar(
-        snakeColor: Colors.white,
+      bottomNavigationBar: SnakeNavigationBar.color(
+        snakeViewColor: Colors.white,
         backgroundColor: Colors.black,
         showUnselectedLabels: true,
         currentIndex: _selectedIndex,
-        onPositionChanged: (index) => setState(() => _selectedIndex = index),
+        onTap: (index) => setState(() => _selectedIndex = index),
         items: [
           BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.userFriends),

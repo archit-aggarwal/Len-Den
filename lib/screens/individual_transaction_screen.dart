@@ -23,7 +23,20 @@ class IndividualTransaction extends StatefulWidget {
 
 class _IndividualTransactionState extends State<IndividualTransaction> {
   Cloud.CollectionReference transactions;
-  Future<void> addTransaction(Transaction transaction) {
+  Future<void> addTransaction(Transaction transaction) async {
+    var netDoc = await Cloud.FirebaseFirestore.instance
+        .doc("${widget.transactionBook.contact.displayName}/netAmount")
+        .get();
+    Cloud.FirebaseFirestore.instance
+        .doc("${widget.transactionBook.contact.displayName}/netAmount")
+        .set({
+      "netAmount": netDoc['netAmount'] +
+          transaction.amountCredit -
+          transaction.amountDebit,
+      "netCredit": netDoc['netCredit'] + transaction.amountCredit,
+      "netDebit": netDoc['netDebit'] + transaction.amountDebit,
+      "time": DateTime.utc(3000), // To Sort to Top
+    }, Cloud.SetOptions(merge: true));
     return transactions
         .add({
           'amountCredit': transaction.amountCredit,
@@ -47,6 +60,14 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
   void initState() {
     transactions = Cloud.FirebaseFirestore.instance
         .collection(widget.transactionBook.contact.displayName);
+    Cloud.FirebaseFirestore.instance
+        .doc("${widget.transactionBook.contact.displayName}/netAmount")
+        .set({
+      "netAmount": 0,
+      "netCredit": 0,
+      "netDebit": 0,
+      "time": DateTime.utc(3000), // Oldest Date & Time
+    });
     super.initState();
   }
 
@@ -108,149 +129,171 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
                   ),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: FlipCard(
-                  front: Container(
-                    margin: EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 10.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30.0),
-                      color: Colors.greenAccent,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black,
-                          blurRadius: 2.0,
-                          spreadRadius: 0.0,
-                          offset: Offset(
-                              2.0, 2.0), // shadow direction: bottom right
-                        )
-                      ],
-                    ),
-                    width: 100,
-                    height: 75,
-                    child: ListTile(
-                      leading: Container(
-                        padding: EdgeInsets.only(
-                          top: 8.0,
-                        ),
-                        child: Text(
-                          '${widget.transactionBook.netCredit.toString()}${String.fromCharCodes(Runes(' \u{20B9}'))}',
-                          style: GoogleFonts.robotoCondensed(
-                            fontSize: 28,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                      title: Container(
-                        padding: EdgeInsets.only(
-                          top: 8.0,
-                        ),
-                        child: Text(
-                          'Net Credit',
-                          style: GoogleFonts.roboto(
-                            fontSize: 28,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w300,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  back: Container(
-                    margin: EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 10.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30.0),
-                      color: Colors.deepOrange,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black,
-                          blurRadius: 2.0,
-                          spreadRadius: 0.0,
-                          offset: Offset(
-                              2.0, 2.0), // shadow direction: bottom right
-                        )
-                      ],
-                    ),
-                    width: 100,
-                    height: 75,
-                    child: ListTile(
-                      leading: Container(
-                        padding: EdgeInsets.only(
-                          top: 8.0,
-                        ),
-                        child: Text(
-                          '${widget.transactionBook.netDebit.toString()}${String.fromCharCodes(Runes(' \u{20B9}'))}',
-                          style: GoogleFonts.robotoCondensed(
-                            fontSize: 28,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                      title: Container(
-                        padding: EdgeInsets.only(
-                          top: 8.0,
-                        ),
-                        child: Text(
-                          'Net Debit',
-                          style: GoogleFonts.roboto(
-                            fontSize: 28,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     Cloud.DocumentSnapshot ds = snapshot
                         .data.docs[snapshot.data.docs.length - index - 1];
-                    return ListTile(
-                      onLongPress: () {
-                        transactions.doc(ds.id).delete();
-                      },
-                      leading: (ds['amountCredit'] > 0)
-                          ? Icon(
-                              Icons.undo,
-                              color: Colors.green,
-                              //size: 24.0,
-                              semanticLabel: 'Credit',
-                            )
-                          : Icon(
-                              Icons.redo,
-                              color: Colors.red,
-                              // size: 24.0,
-                              semanticLabel: 'Debit',
-                            ),
-                      title: Text(ds['message']),
-                      subtitle: Text(
-                        DateFormat('kk:mm dd-MM-yyyy')
-                            .format(ds['time'].toDate()),
-                      ),
-                      trailing: (ds['amountCredit'] > 0)
-                          ? Text(
-                              '${ds['amountCredit'].toString()} ${String.fromCharCodes(Runes(' \u{20B9}'))}',
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontSize: 24.0,
+                    return (ds.id == 'netAmount')
+                        ? ListTile(
+                            title: FlipCard(
+                              front: Container(
+                                margin:
+                                    EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 10.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  color: Colors.greenAccent,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 2.0,
+                                      spreadRadius: 0.0,
+                                      offset: Offset(2.0,
+                                          2.0), // shadow direction: bottom right
+                                    )
+                                  ],
+                                ),
+                                width: 100,
+                                height: 75,
+                                child: ListTile(
+                                  leading: Container(
+                                    padding: EdgeInsets.only(
+                                      top: 8.0,
+                                    ),
+                                    child: Text(
+                                      '${ds['netCredit'].toString()}${String.fromCharCodes(Runes(' '
+                                          '\u{20B9}'))}',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontSize: 28,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                  title: Container(
+                                    padding: EdgeInsets.only(
+                                      top: 8.0,
+                                    ),
+                                    child: Text(
+                                      'Net Credit',
+                                      style: GoogleFonts.roboto(
+                                        fontSize: 28,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w300,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            )
-                          : Text(
-                              '${ds['amountDebit'].toString()} ${String.fromCharCodes(Runes(' \u{20B9}'))}',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 24.0,
+                              back: Container(
+                                margin:
+                                    EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 10.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  color: Colors.deepOrange,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 2.0,
+                                      spreadRadius: 0.0,
+                                      offset: Offset(2.0,
+                                          2.0), // shadow direction: bottom right
+                                    )
+                                  ],
+                                ),
+                                width: 100,
+                                height: 75,
+                                child: ListTile(
+                                  leading: Container(
+                                    padding: EdgeInsets.only(
+                                      top: 8.0,
+                                    ),
+                                    child: Text(
+                                      '${ds['netDebit'].toString()}${String.fromCharCodes(Runes(' \u{20B9}'))}',
+                                      style: GoogleFonts.robotoCondensed(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                  title: Container(
+                                    padding: EdgeInsets.only(
+                                      top: 8.0,
+                                    ),
+                                    child: Text(
+                                      'Net Debit',
+                                      style: GoogleFonts.roboto(
+                                        fontSize: 28,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w300,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                    );
+                          )
+                        : ListTile(
+                            onLongPress: () async {
+                              var netDoc = await Cloud
+                                  .FirebaseFirestore.instance
+                                  .doc(
+                                      "${widget.transactionBook.contact.displayName}/netAmount")
+                                  .get();
+                              Cloud.FirebaseFirestore.instance
+                                  .doc(
+                                      "${widget.transactionBook.contact.displayName}/netAmount")
+                                  .set({
+                                "netAmount": netDoc['netAmount'] +
+                                    ds['amountCredit'] -
+                                    ds['amountDebit'],
+                                "netCredit":
+                                    netDoc['netCredit'] + ds['amountCredit'],
+                                "netDebit":
+                                    netDoc['netDebit'] + ds['amountDebit'],
+                                "time": DateTime.utc(3000), // To Sort to Top
+                              }, Cloud.SetOptions(merge: true));
+                              transactions.doc(ds.id).delete();
+                            },
+                            leading: (ds['amountCredit'] > 0)
+                                ? Icon(
+                                    Icons.undo,
+                                    color: Colors.green,
+                                    //size: 24.0,
+                                    semanticLabel: 'Credit',
+                                  )
+                                : Icon(
+                                    Icons.redo,
+                                    color: Colors.red,
+                                    // size: 24.0,
+                                    semanticLabel: 'Debit',
+                                  ),
+                            title: Text(ds['message']),
+                            subtitle: Text(
+                              DateFormat('kk:mm dd-MM-yyyy')
+                                  .format(ds['time'].toDate()),
+                            ),
+                            trailing: (ds['amountCredit'] > 0)
+                                ? Text(
+                                    '${ds['amountCredit'].toString()} ${String.fromCharCodes(Runes(' \u{20B9}'))}',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 24.0,
+                                    ),
+                                  )
+                                : Text(
+                                    '${ds['amountDebit'].toString()} ${String.fromCharCodes(Runes(' \u{20B9}'))}',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 24.0,
+                                    ),
+                                  ),
+                          );
                   },
                   childCount: snapshot.data.docs.length,
                 ),

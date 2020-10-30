@@ -512,12 +512,12 @@ class _GroupTransactionState extends State<GroupTransaction> {
           ],
         ),
       ),
-      bottomNavigationBar: SnakeNavigationBar(
-        snakeColor: Colors.white,
+      bottomNavigationBar: SnakeNavigationBar.color(
+        snakeViewColor: Colors.white,
         backgroundColor: Colors.black,
         showUnselectedLabels: true,
         currentIndex: _selectedIndex,
-        onPositionChanged: (index) => setState(() => _selectedIndex = index),
+        onTap: (index) => setState(() => _selectedIndex = index),
         items: [
           BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.sitemap),

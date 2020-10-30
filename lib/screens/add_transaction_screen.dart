@@ -147,7 +147,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       ),
                     ),
                     RaisedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState.validate()) {
                           int amountDebit = 0, amountCredit = 0;
                           if (paymentType == Payment.Credit)
@@ -160,7 +160,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             time: DateTime.now(),
                             message: message,
                           );
-                          widget.callBack(transaction);
+                          await widget.callBack(transaction);
                         }
                       },
                       child: Text('Add'),

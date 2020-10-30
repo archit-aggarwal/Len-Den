@@ -1,8 +1,11 @@
+import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:len_den/screens/login_screen.dart';
 import 'package:len_den/widgets/update_password.dart';
 import 'package:len_den/widgets/update_username.dart';
 
@@ -14,8 +17,18 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   User currentUser = FirebaseAuth.instance.currentUser;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
   String userName;
   final picker = ImagePicker();
+  bool isSignedIn = false;
+
+  checkSignedIn() async {
+    isSignedIn = await googleSignIn.isSignedIn();
+    if (isSignedIn)
+      print("Google User");
+    else
+      print("Email User");
+  }
 
   @override
   void initState() {
@@ -23,6 +36,7 @@ class _UserProfileState extends State<UserProfile> {
     userName = (currentUser.displayName != null)
         ? currentUser.displayName
         : "No User Name";
+    checkSignedIn();
     FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {});
     });
@@ -80,16 +94,21 @@ class _UserProfileState extends State<UserProfile> {
                             decoration: new BoxDecoration(
                               shape: BoxShape.circle,
                               image: new DecorationImage(
-                                image: (currentUser.photoURL != null)
-                                    ? FileImage(File(currentUser.photoURL))
-                                    : AssetImage('images/AnonymousUser.png'),
+                                image: (isSignedIn == false)
+                                    ? ((currentUser.photoURL != null)
+                                        ? FileImage(File(currentUser.photoURL))
+                                        : AssetImage(
+                                            'images/AnonymousUser.png'))
+                                    : NetworkImage(FirebaseAuth
+                                        .instance.currentUser.photoURL),
                                 fit: BoxFit.cover,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      Padding(
+                      if (!isSignedIn)
+                        Padding(
                           padding: EdgeInsets.only(top: 90.0, right: 100.0),
                           child: new Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +127,8 @@ class _UserProfileState extends State<UserProfile> {
                                 ),
                               )
                             ],
-                          )),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -130,69 +150,116 @@ class _UserProfileState extends State<UserProfile> {
                     elevation: 18.0,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  child: Card(
-                    child: ListTile(
-                      leading: Icon(Icons.account_circle),
-                      title: Text(
-                        userName,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 18.0,
-                          color: Colors.white70,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                      trailing: IconButton(
-                          icon: Icon(Icons.create),
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              builder: (context) => SingleChildScrollView(
-                                child: Container(
-                                  padding: EdgeInsets.only(
-                                      bottom: MediaQuery.of(context)
-                                          .viewInsets
-                                          .bottom),
-                                  child: EditUserName(
-                                    callBack: (newUserName) {
-                                      getUserName(newUserName);
-                                      setState(() {
-                                        userName = newUserName;
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ),
+                (!isSignedIn)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        child: Card(
+                          child: ListTile(
+                            leading: Icon(Icons.account_circle),
+                            title: Text(
+                              userName,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 18.0,
+                                color: Colors.white70,
+                                fontStyle: FontStyle.italic,
                               ),
-                            );
-                          }),
-                    ),
-                    elevation: 18.0,
-                  ),
-                ),
-                RaisedButton.icon(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (context) => SingleChildScrollView(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom),
-                          child: UpdatePassword(),
+                            ),
+                            trailing: IconButton(
+                                icon: Icon(Icons.create),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (context) => SingleChildScrollView(
+                                      child: Container(
+                                        padding: EdgeInsets.only(
+                                            bottom: MediaQuery.of(context)
+                                                .viewInsets
+                                                .bottom),
+                                        child: EditUserName(
+                                          callBack: (newUserName) {
+                                            getUserName(newUserName);
+                                            setState(() {
+                                              userName = newUserName;
+                                            });
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                          ),
+                          elevation: 18.0,
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        child: Card(
+                          child: ListTile(
+                            leading: Icon(Icons.account_circle),
+                            title: Text(
+                              userName,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 18.0,
+                                color: Colors.white70,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                          elevation: 18.0,
                         ),
                       ),
+                if (!isSignedIn)
+                  RaisedButton.icon(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) => SingleChildScrollView(
+                          child: Container(
+                            padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom),
+                            child: UpdatePassword(),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.vpn_key),
+                    label: Text('Update Password'),
+                    color: Color(0xff03DAC6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 70, vertical: 12),
+                  ),
+                SizedBox(height: 20),
+                RaisedButton.icon(
+                  onPressed: () async {
+                    CoolAlert.show(
+                      context: context,
+                      confirmBtnColor: Colors.red,
+                      onConfirmBtnTap: () async {
+                        try {
+                          await FirebaseAuth.instance.currentUser.delete();
+                        } catch (e) {
+                          print("Cannot Delete User");
+                        }
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            LoginScreen.id, (Route<dynamic> route) => false);
+                      },
+                      type: CoolAlertType.confirm,
+                      text: "You are about to Delete User",
                     );
                   },
-                  icon: Icon(Icons.vpn_key),
-                  label: Text('Update Password'),
-                  color: Color(0xff03DAC6),
+                  icon: Icon(Icons.delete),
+                  label: Text('Delete User'),
+                  color: Colors.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18.0),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 70, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 85, vertical: 12),
                 ),
               ],
             ))
