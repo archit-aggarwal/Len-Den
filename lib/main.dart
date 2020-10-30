@@ -50,6 +50,7 @@ class _AppState extends State<App> {
     }
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       initialRoute: (FirebaseAuth.instance.currentUser != null)
           ? HomePage.id
           : LoginScreen.id,
