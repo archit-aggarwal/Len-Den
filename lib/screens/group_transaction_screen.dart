@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart' as Cloud;
+import 'package:cool_alert/cool_alert.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,14 +14,23 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'add_group_transaction_screen.dart';
 
 class GroupTransaction extends StatefulWidget {
-  GroupTransaction({this.group});
+  GroupTransaction({this.ds, this.group});
   final Group group;
+  final Cloud.DocumentSnapshot ds;
   @override
   _GroupTransactionState createState() => _GroupTransactionState();
 }
 
 class _GroupTransactionState extends State<GroupTransaction> {
   int _selectedIndex = 0;
+  Cloud.DocumentReference doc;
+  @override
+  void initState() {
+    doc = Cloud.FirebaseFirestore.instance
+        .collection('${FirebaseAuth.instance.currentUser.uid}')
+        .doc(widget.ds.id);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +44,30 @@ class _GroupTransactionState extends State<GroupTransaction> {
                 MaterialPageRoute(builder: (context) {
                   return AddGroupTransactionScreen(
                     group: widget.group,
-                    callBack: (newTransaction) {
+                    callBack: (Transaction newTransaction) {
                       setState(() {
                         widget.group.addTransaction(newTransaction);
                       });
+
+                      doc
+                          .update({
+                            "transactions": Cloud.FieldValue.arrayUnion(
+                                [newTransaction.toJson()]),
+                            "reducedTransactions": widget
+                                .group.reducedTransactions
+                                .map((i) => i.toJson())
+                                .toList(),
+                          })
+                          .then((value) => CoolAlert.show(
+                                context: context,
+                                type: CoolAlertType.success,
+                                text: "Transaction Added Successfully",
+                              ))
+                          .catchError((error) => CoolAlert.show(
+                                context: context,
+                                type: CoolAlertType.error,
+                                text: "Failed to add Transaction: $error",
+                              ));
                       Navigator.pop(context);
                     },
                   );
@@ -117,24 +149,13 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Container(
-                                                  child: widget
-                                                      .group
-                                                      .transactions[index]
-                                                      .sender
-                                                      .leadingIcon,
-                                                ),
-                                                SizedBox(
-                                                  height: 6,
-                                                ),
-                                                Container(
                                                   width: 80,
                                                   child: AutoSizeText(
                                                     widget
                                                         .group
                                                         .transactions[index]
                                                         .sender
-                                                        .contact
-                                                        .displayName,
+                                                        .contactName,
                                                     maxLines: 2,
                                                     textAlign: TextAlign.center,
                                                     overflow:
@@ -147,23 +168,10 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                                   width: 80,
                                                   child: AutoSizeText(
                                                     widget
-                                                                .group
-                                                                .transactions[
-                                                                    index]
-                                                                .sender
-                                                                .contact
-                                                                .phones
-                                                                .length >
-                                                            0
-                                                        ? widget
-                                                            .group
-                                                            .transactions[index]
-                                                            .sender
-                                                            .contact
-                                                            .phones
-                                                            .elementAt(0)
-                                                            .value
-                                                        : '',
+                                                        .group
+                                                        .transactions[index]
+                                                        .sender
+                                                        .contactNumber,
                                                     maxLines: 1,
                                                     textAlign: TextAlign.center,
                                                     overflow:
@@ -224,16 +232,16 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                Container(
-                                                  child: widget
-                                                      .group
-                                                      .transactions[index]
-                                                      .receiver
-                                                      .leadingIcon,
-                                                ),
-                                                SizedBox(
-                                                  height: 6,
-                                                ),
+                                                // Container(
+                                                //   child: widget
+                                                //       .group
+                                                //       .transactions[index]
+                                                //       .receiver
+                                                //       .leadingIcon,
+                                                // ),
+                                                // SizedBox(
+                                                //   height: 6,
+                                                // ),
                                                 Container(
                                                   width: 80,
                                                   child: AutoSizeText(
@@ -241,8 +249,7 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                                         .group
                                                         .transactions[index]
                                                         .receiver
-                                                        .contact
-                                                        .displayName,
+                                                        .contactName,
                                                     maxLines: 2,
                                                     textAlign: TextAlign.center,
                                                     overflow:
@@ -255,23 +262,10 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                                   width: 100,
                                                   child: AutoSizeText(
                                                     widget
-                                                                .group
-                                                                .transactions[
-                                                                    index]
-                                                                .receiver
-                                                                .contact
-                                                                .phones
-                                                                .length >
-                                                            0
-                                                        ? widget
-                                                            .group
-                                                            .transactions[index]
-                                                            .receiver
-                                                            .contact
-                                                            .phones
-                                                            .elementAt(0)
-                                                            .value
-                                                        : '',
+                                                        .group
+                                                        .transactions[index]
+                                                        .receiver
+                                                        .contactNumber,
                                                     maxLines: 2,
                                                     textAlign: TextAlign.center,
                                                     overflow:
@@ -348,14 +342,14 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Container(
-                                            child: widget
-                                                .group
-                                                .reducedTransactions[index]
-                                                .sender
-                                                .leadingIcon,
-                                          ),
-                                          SizedBox(height: 6),
+                                          // Container(
+                                          //   child: widget
+                                          //       .group
+                                          //       .reducedTransactions[index]
+                                          //       .sender
+                                          //       .leadingIcon,
+                                          // ),
+                                          // SizedBox(height: 6),
                                           Container(
                                             width: 80,
                                             child: AutoSizeText(
@@ -363,8 +357,7 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                                   .group
                                                   .reducedTransactions[index]
                                                   .sender
-                                                  .contact
-                                                  .displayName,
+                                                  .contactName,
                                               maxLines: 2,
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,
@@ -376,24 +369,10 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                             width: 80,
                                             child: AutoSizeText(
                                               widget
-                                                          .group
-                                                          .reducedTransactions[
-                                                              index]
-                                                          .sender
-                                                          .contact
-                                                          .phones
-                                                          .length >
-                                                      0
-                                                  ? widget
-                                                      .group
-                                                      .reducedTransactions[
-                                                          index]
-                                                      .sender
-                                                      .contact
-                                                      .phones
-                                                      .elementAt(0)
-                                                      .value
-                                                  : '',
+                                                  .group
+                                                  .reducedTransactions[index]
+                                                  .sender
+                                                  .contactNumber,
                                               maxLines: 2,
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,
@@ -412,9 +391,8 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                       ),
                                       Container(
                                         child: Text(
-                                          " ${widget.group.reducedTransactions[index].netAmount} ${String.fromCharCodes(
-                                            Runes(' \u{20B9}'),
-                                          )} ",
+                                          " ${widget.group.reducedTransactions[index].netAmount} "
+                                          "${String.fromCharCodes(Runes(' \u{20B9}'))} ",
                                           style: TextStyle(color: Colors.amber),
                                         ),
                                       ),
@@ -427,14 +405,14 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Container(
-                                            child: widget
-                                                .group
-                                                .reducedTransactions[index]
-                                                .receiver
-                                                .leadingIcon,
-                                          ),
-                                          SizedBox(height: 6),
+                                          // Container(
+                                          //   child: widget
+                                          //       .group
+                                          //       .reducedTransactions[index]
+                                          //       .receiver
+                                          //       .leadingIcon,
+                                          // ),
+                                          // SizedBox(height: 6),
                                           Container(
                                             width: 80,
                                             child: AutoSizeText(
@@ -442,8 +420,7 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                                   .group
                                                   .reducedTransactions[index]
                                                   .receiver
-                                                  .contact
-                                                  .displayName,
+                                                  .contactName,
                                               maxLines: 2,
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,
@@ -455,24 +432,10 @@ class _GroupTransactionState extends State<GroupTransaction> {
                                             width: 80,
                                             child: AutoSizeText(
                                               widget
-                                                          .group
-                                                          .reducedTransactions[
-                                                              index]
-                                                          .receiver
-                                                          .contact
-                                                          .phones
-                                                          .length >
-                                                      0
-                                                  ? widget
-                                                      .group
-                                                      .reducedTransactions[
-                                                          index]
-                                                      .receiver
-                                                      .contact
-                                                      .phones
-                                                      .elementAt(0)
-                                                      .value
-                                                  : '',
+                                                  .group
+                                                  .reducedTransactions[index]
+                                                  .receiver
+                                                  .contactNumber,
                                               maxLines: 2,
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,

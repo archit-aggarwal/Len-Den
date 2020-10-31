@@ -34,7 +34,7 @@ class _AddGroupTransactionScreenState extends State<AddGroupTransactionScreen> {
     setState(() {
       for (var member in widget.group.groupMembers) {
         var createMap = {
-          'display': member.contact.displayName,
+          'display': member.contactName,
           'value': count,
         };
         count++;

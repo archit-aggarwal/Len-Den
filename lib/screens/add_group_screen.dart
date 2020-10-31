@@ -158,19 +158,31 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18.0),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState.validate()) {
-                      Group newGroup = Group(groupName: currentName);
+                      List<TransactionBook> groupMembers = [];
                       for (var transactionBook in HomePage.transactionBooks) {
                         if (transactionBook.isChecked == true) {
-                          TransactionBook newBook = new TransactionBook(
-                            leadingIcon: transactionBook.leadingIcon,
-                            contact: transactionBook.contact,
+                          groupMembers.add(
+                            TransactionBook(
+                              leadingIcon: transactionBook.leadingIcon,
+                              contact: transactionBook.contact,
+                              contactName: transactionBook.contact.displayName,
+                              contactNumber:
+                                  (transactionBook.contact.phones.length > 0)
+                                      ? transactionBook
+                                          .contact.phones.first.value
+                                      : "",
+                            ),
                           );
-                          newGroup.addGroupMember(newBook);
                         }
                       }
-                      widget.callBack(newGroup);
+                      Group newGroup = Group(
+                        groupName: currentName,
+                        timeCreated: DateTime.now(),
+                        groupMembers: groupMembers,
+                      );
+                      await widget.callBack(newGroup);
                     }
                   },
                   child: Text('Add Group'),

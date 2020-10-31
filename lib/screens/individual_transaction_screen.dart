@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:len_den/screens/add_transaction_screen.dart';
@@ -23,13 +24,12 @@ class IndividualTransaction extends StatefulWidget {
 
 class _IndividualTransactionState extends State<IndividualTransaction> {
   Cloud.CollectionReference transactions;
+  Cloud.DocumentReference netAmountDoc;
+
   Future<void> addTransaction(Transaction transaction) async {
-    var netDoc = await Cloud.FirebaseFirestore.instance
-        .doc("${widget.transactionBook.contact.displayName}/netAmount")
-        .get();
-    Cloud.FirebaseFirestore.instance
-        .doc("${widget.transactionBook.contact.displayName}/netAmount")
-        .set({
+    Cloud.DocumentSnapshot netDoc = await netAmountDoc.get();
+
+    netAmountDoc.set({
       "netAmount": netDoc['netAmount'] +
           transaction.amountCredit -
           transaction.amountDebit,
@@ -37,6 +37,7 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
       "netDebit": netDoc['netDebit'] + transaction.amountDebit,
       "time": DateTime.utc(3000), // To Sort to Top
     }, Cloud.SetOptions(merge: true));
+
     return transactions
         .add({
           'amountCredit': transaction.amountCredit,
@@ -58,14 +59,9 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
 
   Future checkExist() async {
     try {
-      await Cloud.FirebaseFirestore.instance
-          .doc("${widget.transactionBook.contact.displayName}/netAmount")
-          .get()
-          .then((doc) {
+      await netAmountDoc.get().then((doc) {
         if (doc.exists == false)
-          Cloud.FirebaseFirestore.instance
-              .doc("${widget.transactionBook.contact.displayName}/netAmount")
-              .set({
+          netAmountDoc.set({
             "netAmount": 0,
             "netCredit": 0,
             "netDebit": 0,
@@ -73,9 +69,7 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
           });
       });
     } catch (e) {
-      Cloud.FirebaseFirestore.instance
-          .doc("${widget.transactionBook.contact.displayName}/netAmount")
-          .set({
+      netAmountDoc.set({
         "netAmount": 0,
         "netCredit": 0,
         "netDebit": 0,
@@ -87,7 +81,14 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
   @override
   void initState() {
     transactions = Cloud.FirebaseFirestore.instance
-        .collection(widget.transactionBook.contact.displayName);
+        .collection('${FirebaseAuth.instance.currentUser.uid}')
+        .doc('Individual Payments')
+        .collection('${widget.transactionBook.contact.displayName}');
+    netAmountDoc = Cloud.FirebaseFirestore.instance
+        .collection('${FirebaseAuth.instance.currentUser.uid}')
+        .doc('Individual Payments')
+        .collection('${widget.transactionBook.contact.displayName}')
+        .doc("netAmount");
     checkExist();
     super.initState();
   }
@@ -261,15 +262,8 @@ class _IndividualTransactionState extends State<IndividualTransaction> {
                           )
                         : ListTile(
                             onLongPress: () async {
-                              var netDoc = await Cloud
-                                  .FirebaseFirestore.instance
-                                  .doc(
-                                      "${widget.transactionBook.contact.displayName}/netAmount")
-                                  .get();
-                              Cloud.FirebaseFirestore.instance
-                                  .doc(
-                                      "${widget.transactionBook.contact.displayName}/netAmount")
-                                  .set({
+                              var netDoc = await netAmountDoc.get();
+                              netAmountDoc.set({
                                 "netAmount": netDoc['netAmount'] +
                                     ds['amountCredit'] -
                                     ds['amountDebit'],
