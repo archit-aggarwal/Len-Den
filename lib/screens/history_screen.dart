@@ -18,12 +18,10 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   Future _signOut() async {
-    print("Signing Out");
     if (isSignedIn == true)
       await googleSignIn.signOut();
     else
       await _auth.signOut();
-    print("Sign Out Successful !");
   }
 
   FirebaseAuth _auth = FirebaseAuth.instance;

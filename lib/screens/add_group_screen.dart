@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:len_den/model/group.dart';
 import 'package:len_den/model/transaction_book.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'homepage_screen.dart';
 
 class AddGroupScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   String currentName;
   TextEditingController searchController = TextEditingController();
   List<TransactionBook> booksFiltered = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -68,131 +70,149 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   @override
   Widget build(BuildContext context) {
     bool isSearching = searchController.text.isNotEmpty;
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          // padding: EdgeInsets.all(25.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: "Group Name",
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: BorderSide(),
+    if (isLoading == true)
+      return SpinKitChasingDots(
+        color: Colors.white,
+        size: 50.0,
+      );
+    else
+      return Scaffold(
+        body: SafeArea(
+          child: Container(
+            // padding: EdgeInsets.all(25.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Group Name",
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: BorderSide(),
+                        ),
+                      ),
+                      validator: (name) {
+                        if (name.length == 0) return 'Please Enter Group Name';
+                        Pattern pattern =
+                            r'^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$';
+                        RegExp regex = new RegExp(pattern);
+                        if (!regex.hasMatch(name))
+                          return 'Invalid Group Name';
+                        else
+                          return null;
+                      },
+                      onChanged: (newText) {
+                        setState(() {
+                          currentName = newText;
+                        });
+                      },
+                      keyboardType: TextInputType.text,
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(20.0),
+                    child: TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Search Member',
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25.0)),
+                            borderSide: BorderSide(
+                                color: Theme.of(context).primaryColor)),
+                        prefixIcon: Icon(Icons.search, color: Colors.white),
                       ),
                     ),
-                    validator: (name) {
-                      if (name.length == 0) return 'Please Enter Group Name';
-                      Pattern pattern = r'^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$';
-                      RegExp regex = new RegExp(pattern);
-                      if (!regex.hasMatch(name))
-                        return 'Invalid Group Name';
-                      else
-                        return null;
-                    },
-                    onChanged: (newText) {
-                      setState(() {
-                        currentName = newText;
-                      });
-                    },
-                    keyboardType: TextInputType.text,
-                    style: GoogleFonts.poppins(),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(20.0),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Search Member',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                          borderSide: BorderSide(
-                              color: Theme.of(context).primaryColor)),
-                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                  Expanded(
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) => Divider(
+                        thickness: 1.5,
+                        height: 5,
+                        color: Colors.white12,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: isSearching == false
+                          ? HomePage.transactionBooks.length
+                          : booksFiltered.length,
+                      itemBuilder: (context, index) {
+                        TransactionBook transactionBook = isSearching == false
+                            ? HomePage.transactionBooks[index]
+                            : booksFiltered[index];
+                        return CheckboxListTile(
+                          value: transactionBook.isChecked,
+                          title: Text(transactionBook.contact.displayName),
+                          subtitle: Text(
+                              transactionBook.contact.phones.length > 0
+                                  ? transactionBook.contact.phones
+                                      .elementAt(0)
+                                      .value
+                                  : ''),
+                          secondary: transactionBook.leadingIcon,
+                          onChanged: (bool value) {
+                            setState(() {
+                              transactionBook.isChecked = value;
+                            });
+                          },
+                        );
+                      },
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      thickness: 1.5,
-                      height: 5,
-                      color: Colors.white12,
+                  SizedBox(height: 10.0),
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
                     ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                    ),
-                    shrinkWrap: true,
-                    itemCount: isSearching == false
-                        ? HomePage.transactionBooks.length
-                        : booksFiltered.length,
-                    itemBuilder: (context, index) {
-                      TransactionBook transactionBook = isSearching == false
-                          ? HomePage.transactionBooks[index]
-                          : booksFiltered[index];
-                      return CheckboxListTile(
-                        value: transactionBook.isChecked,
-                        title: Text(transactionBook.contact.displayName),
-                        subtitle: Text(transactionBook.contact.phones.length > 0
-                            ? transactionBook.contact.phones.elementAt(0).value
-                            : ''),
-                        secondary: transactionBook.leadingIcon,
-                        onChanged: (bool value) {
-                          setState(() {
-                            transactionBook.isChecked = value;
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(height: 10.0),
-                RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18.0),
-                  ),
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      List<TransactionBook> groupMembers = [];
-                      for (var transactionBook in HomePage.transactionBooks) {
-                        if (transactionBook.isChecked == true) {
-                          groupMembers.add(
-                            TransactionBook(
-                              leadingIcon: transactionBook.leadingIcon,
-                              contact: transactionBook.contact,
-                              contactName: transactionBook.contact.displayName,
-                              contactNumber:
-                                  (transactionBook.contact.phones.length > 0)
-                                      ? transactionBook
-                                          .contact.phones.first.value
-                                      : "",
-                            ),
-                          );
+                    onPressed: () async {
+                      if (_formKey.currentState.validate()) {
+                        List<TransactionBook> groupMembers = [];
+                        for (var transactionBook in HomePage.transactionBooks) {
+                          if (transactionBook.isChecked == true) {
+                            groupMembers.add(
+                              TransactionBook(
+                                leadingIcon: transactionBook.leadingIcon,
+                                contact: transactionBook.contact,
+                                contactName:
+                                    transactionBook.contact.displayName,
+                                contactNumber:
+                                    (transactionBook.contact.phones.length > 0)
+                                        ? transactionBook
+                                            .contact.phones.first.value
+                                        : "",
+                              ),
+                            );
+                          }
                         }
+                        Group newGroup = Group(
+                          groupName: currentName,
+                          timeCreated: DateTime.now(),
+                          groupMembers: groupMembers,
+                        );
+                        setState(() {
+                          isLoading = true;
+                        });
+                        await widget.callBack(newGroup);
+                        setState(() {
+                          isLoading = false;
+                        });
                       }
-                      Group newGroup = Group(
-                        groupName: currentName,
-                        timeCreated: DateTime.now(),
-                        groupMembers: groupMembers,
-                      );
-                      await widget.callBack(newGroup);
-                    }
-                  },
-                  child: Text('Add Group'),
-                ),
-              ],
+                    },
+                    child: Text('Add Group'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
