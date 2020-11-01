@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:len_den/widgets/transaction_data.dart';
+import 'package:len_den/model/group.dart';
+import 'package:len_den/model/transaction_book.dart';
 import 'homepage_screen.dart';
 
 class AddGroupScreen extends StatefulWidget {

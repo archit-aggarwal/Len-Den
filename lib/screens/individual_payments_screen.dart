@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:len_den/model/transaction_book.dart';
 import 'package:len_den/screens/homepage_screen.dart';
-import 'package:len_den/widgets/transaction_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:len_den/widgets/rounded_appbar.dart';
 import 'individual_transaction_screen.dart';

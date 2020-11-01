@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:len_den/model/transaction.dart';
+import 'package:len_den/model/transaction_book.dart';
 import 'package:len_den/screens/add_transaction_screen.dart';
 import 'package:len_den/widgets/something_went_wrong.dart';
-import 'package:len_den/widgets/transaction_data.dart';
 import 'package:sliver_fab/sliver_fab.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flip_card/flip_card.dart';

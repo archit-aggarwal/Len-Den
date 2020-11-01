@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart';
 
 class QRCode extends StatefulWidget {
   @override

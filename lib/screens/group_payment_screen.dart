@@ -1,13 +1,12 @@
-import 'dart:convert';
 import 'package:cool_alert/cool_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:len_den/model/group.dart';
 import 'package:len_den/widgets/rounded_appbar.dart';
 import 'package:len_den/widgets/something_went_wrong.dart';
-import 'package:len_den/widgets/transaction_data.dart';
 import 'add_group_screen.dart';
 import 'group_transaction_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as Cloud;

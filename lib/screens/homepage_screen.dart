@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:len_den/widgets/transaction_data.dart';
+import 'package:len_den/model/transaction_book.dart';
 import 'package:len_den/screens/group_payment_screen.dart';
 import 'package:len_den/screens/history_screen.dart';
 import 'package:len_den/screens/individual_payments_screen.dart';

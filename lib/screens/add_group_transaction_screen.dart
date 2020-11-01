@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:len_den/widgets/transaction_data.dart';
+import 'package:len_den/model/group.dart';
+import 'package:len_den/model/transaction.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
 
 Color hexToColor(String code) {

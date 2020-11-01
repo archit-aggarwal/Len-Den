@@ -66,8 +66,6 @@ class _AppState extends State<App> {
   }
 }
 
-//TODO: Add History Screen (Overall Payments & Timeline of Transactions)
-//TODO: Add Cloud FireStore for Storing Data & Retrieving Data
 //TODO: Add Welcome Screen (How to Use App at first time login)
 //TODO: Add Payment Reminder + Link generation
 //TODO: Add PDF Generation for Report
